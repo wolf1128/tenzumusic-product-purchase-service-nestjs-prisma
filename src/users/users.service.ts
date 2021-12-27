@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma.service';
 import { User as UserModel, Prisma } from '@prisma/client';
 import * as Joi from 'joi';
 import { CreateUserDto } from './dto/create-user.dto';
+import { GetUserDto } from './dto/get-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +15,10 @@ export class UsersService {
 		const salt = await bcrypt.genSalt(10);
 		return await bcrypt.hash(enteredPassword, salt);
 	}
+
+	matchPassword = async (enteredPassword: string, password: string) => {
+		return await bcrypt.compare(enteredPassword, password);
+	};
 
 	// Data Layer methods
 
@@ -40,6 +45,12 @@ export class UsersService {
 		return result;
 	};
 
+	findOneUser = async (id: string) => {
+		return await this.service.user.findFirst({
+			where: { id },
+		});
+	};
+
 	// Validations
 
 	validateRegisterUser(user: CreateUserDto) {
@@ -52,5 +63,14 @@ export class UsersService {
 		});
 
 		return schema.validate(user);
+	}
+
+	validateGetUser(userInfo: GetUserDto) {
+		const schema = Joi.object({
+			id: Joi.string().required(),
+			password: Joi.string().min(0).required(),
+		});
+
+		return schema.validate(userInfo);
 	}
 }

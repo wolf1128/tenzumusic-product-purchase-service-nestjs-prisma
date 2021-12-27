@@ -1,7 +1,9 @@
 import {
 	Body,
 	Controller,
+	Get,
 	HttpCode,
+	HttpException,
 	HttpStatus,
 	Post,
 	Res,
@@ -12,11 +14,15 @@ import { User as UserModel, Prisma } from '@prisma/client';
 import { UsersService } from './users.service';
 import * as uniqid from 'uniqid';
 import { CreateUserDto } from './dto/create-user.dto';
+import { GetUserDto } from './dto/get-user.dto';
 
 @Controller('users')
 export class UsersController {
 	constructor(private readonly service: UsersService) {}
 
+	// @desc        Register a new user
+	// @route       POST /users
+	// @access      Public
 	@Post()
 	// @HttpCode(201)
 	async registerUser(
@@ -45,5 +51,30 @@ export class UsersController {
 		return res
 			.status(HttpStatus.CREATED)
 			.send('The user has been created successfully.'); // it will automatically be serialized to JSON.
+	}
+
+	// @desc        Get user info
+	// @route       POST /users/info
+	// @access      Public
+	@Post('info')
+	// @HttpCode(201)
+	async getUser(@Body() getUserDto: GetUserDto, @Res() res: Response) {
+		const { error } = this.service.validateGetUser(getUserDto);
+		if (error)
+			return res.status(HttpStatus.BAD_REQUEST).send(error.details[0].message);
+
+		const { id, password } = getUserDto;
+
+		let user = await this.service.findOneUser(id);
+
+		if (user && (await this.service.matchPassword(password, user.password))) {
+			user.password = '****';
+			res.json(user);
+		} else {
+			throw new HttpException(
+				'Passwords are not match!',
+				HttpStatus.UNAUTHORIZED
+			);
+		}
 	}
 }
