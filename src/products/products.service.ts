@@ -26,6 +26,12 @@ export class ProductsService {
 		});
 	};
 
+    findOneProduct = async (id: string) => {
+        return await this.service.product.findFirst({
+            where: { id },
+        });
+    };
+
 	// Validations
 
 	validateCreateProduct(product: CreateProductDto) {

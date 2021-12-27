@@ -1,4 +1,12 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Get,
+	HttpStatus,
+	Param,
+	Post,
+	Res,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Response } from 'express';
 import { ProductsService } from './products.service';
@@ -28,7 +36,16 @@ export class ProductsController {
 
 		const message = 'The Product has been created successfully.';
 
-        
 		return res.status(HttpStatus.CREATED).send(message); // it will automatically be serialized to JSON.
+	}
+
+	// @desc        Get product info
+	// @route       GET /products/:id
+	// @access      Public
+	@Get('/:id')
+	async getProduct(@Param('id') id: string) {
+		const product = await this.service.findOneProduct(id);
+
+		return product;
 	}
 }
