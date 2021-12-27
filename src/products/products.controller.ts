@@ -5,6 +5,7 @@ import {
 	HttpStatus,
 	Param,
 	Post,
+	Query,
 	Res,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -47,5 +48,19 @@ export class ProductsController {
 		const product = await this.service.findOneProduct(id);
 
 		return product;
+	}
+
+	// @desc        Get all products info
+	// @route       GET /products?minPrice=xx&maxPrice=xx
+	// @access      Public
+	@Get()
+	async getProducts(
+		@Query('minPrice') minPrice: string,
+		@Query('maxPrice') maxPrice: string
+	) {
+		return await this.service.findAllProductsAndFilter(
+			parseInt(minPrice),
+			parseInt(maxPrice)
+		);
 	}
 }

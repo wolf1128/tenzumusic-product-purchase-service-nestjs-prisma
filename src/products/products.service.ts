@@ -26,11 +26,54 @@ export class ProductsService {
 		});
 	};
 
-    findOneProduct = async (id: string) => {
-        return await this.service.product.findFirst({
-            where: { id },
-        });
-    };
+	findOneProduct = async (id: string) => {
+		return await this.service.product.findFirst({
+			where: { id },
+		});
+	};
+
+	findAllProductsAndFilter = async (minPrice: number, maxPrice: number) => { // NOTE: Without any of the query strings, we'll get NaN after parsing to int. After all remember NaN is a falsy value.
+		if (minPrice && maxPrice) { // NOTE: If you provide minPrice grather than the minPrice you'll get nothing of course!
+			// Way#1
+			// const sql = `SELECT * FROM PRODUCTS WHERE Price BETWEEN $minPrice AND $maxPrice`;
+			// return await this.service.$queryRaw`${sql}`;
+			// Way#2
+			return await this.service.product.findMany({
+				where: {
+					AND: [
+						{
+							price: {
+								gte: minPrice,
+							},
+						},
+						{
+							price: {
+								lte: maxPrice,
+							},
+						},
+					],
+				},
+			});
+		} else if (minPrice) {
+			return await this.service.product.findMany({
+				where: {
+					price: {
+						gte: minPrice,
+					},
+				},
+			});
+		} else if (maxPrice) {
+			return await this.service.product.findMany({
+				where: {
+					price: {
+						lte: maxPrice,
+					},
+				},
+			});
+		} else {
+			return await this.service.product.findMany();
+		}
+	};
 
 	// Validations
 
