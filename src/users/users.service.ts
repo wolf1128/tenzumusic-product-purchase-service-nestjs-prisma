@@ -11,6 +11,7 @@ export class UsersService {
 	constructor(private readonly service: PrismaService) {}
 
 	// Helper methods
+	
 	async hashPassword(enteredPassword: string) {
 		const salt = await bcrypt.genSalt(10);
 		return await bcrypt.hash(enteredPassword, salt);
