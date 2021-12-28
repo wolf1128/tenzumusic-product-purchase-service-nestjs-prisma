@@ -3,6 +3,7 @@ import * as Joi from 'joi';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product as ProductModel, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { PurchaseProductDto } from './dto/purchase-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -32,8 +33,10 @@ export class ProductsService {
 		});
 	};
 
-	findAllProductsAndFilter = async (minPrice: number, maxPrice: number) => { // NOTE: Without any of the query strings, we'll get NaN after parsing to int. After all remember NaN is a falsy value.
-		if (minPrice && maxPrice) { // NOTE: If you provide minPrice grather than the minPrice you'll get nothing of course!
+	findAllProductsAndFilter = async (minPrice: number, maxPrice: number) => {
+		// NOTE: Without any of the query strings, we'll get NaN after parsing to int. After all remember NaN is a falsy value.
+		if (minPrice && maxPrice) {
+			// NOTE: If you provide minPrice grather than the minPrice you'll get nothing of course!
 			// Way#1
 			// const sql = `SELECT * FROM PRODUCTS WHERE Price BETWEEN $minPrice AND $maxPrice`;
 			// return await this.service.$queryRaw`${sql}`;
@@ -75,6 +78,17 @@ export class ProductsService {
 		}
 	};
 
+	updateProductStock = async (productId: string, newStock: number) => {
+		return await this.service.product.update({
+			where: {
+				id: productId,
+			},
+			data: {
+				stock: newStock,
+			},
+		});
+	};
+
 	// Validations
 
 	validateCreateProduct(product: CreateProductDto) {
@@ -85,5 +99,15 @@ export class ProductsService {
 		});
 
 		return schema.validate(product);
+	}
+
+	validatePurchaseProduct(purchaseInfo: PurchaseProductDto) {
+		const schema = Joi.object({
+			user: Joi.string().required(),
+			product: Joi.string().required(),
+			count: Joi.number().min(0).required(),
+		});
+
+		return schema.validate(purchaseInfo);
 	}
 }

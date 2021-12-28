@@ -11,7 +11,7 @@ export class UsersService {
 	constructor(private readonly service: PrismaService) {}
 
 	// Helper methods
-	
+
 	async hashPassword(enteredPassword: string) {
 		const salt = await bcrypt.genSalt(10);
 		return await bcrypt.hash(enteredPassword, salt);
@@ -49,6 +49,26 @@ export class UsersService {
 	findOneUser = async (id: string) => {
 		return await this.service.user.findFirst({
 			where: { id },
+		});
+	};
+
+	findUserById = async (id: string) => {
+		return await this.service.user.findFirst({
+			where: { id },
+		});
+	};
+
+	updateUserPurchasedProducts = async (
+		userId: string,
+		newPurchasedProducts: string
+	) => {
+		return await this.service.user.update({
+			where: {
+				id: userId,
+			},
+			data: {
+				purchased_products: newPurchasedProducts,
+			},
 		});
 	};
 

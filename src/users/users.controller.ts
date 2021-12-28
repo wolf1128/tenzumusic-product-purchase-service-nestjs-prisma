@@ -16,12 +16,12 @@ import * as uniqid from 'uniqid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 
-@Controller('users')
+@Controller('api/users')
 export class UsersController {
 	constructor(private readonly service: UsersService) {}
 
 	// @desc        Register a new user
-	// @route       POST /users
+	// @route       POST /api/users
 	// @access      Public
 	@Post()
 	// @HttpCode(201)
@@ -54,7 +54,7 @@ export class UsersController {
 	}
 
 	// @desc        Get user info
-	// @route       POST /users/info
+	// @route       POST /api/users/info
 	// @access      Public
 	@Post('info')
 	// @HttpCode(201)
